@@ -5,6 +5,8 @@
   "whatIsIt" : "What is it"
  },
  "mainSection": {
-  "title": "H Markdown Editor"
+  "title": "H Markdown Editor",
+  "whatIsIt" : "What is it ?",
+  "description" : "This project is a Markdown editor/viewer that makes it easier for everyone to review, generate, or edit Markdown content. It is a simple project built using React, TypeScript, and Bootstrap."
  }
 }

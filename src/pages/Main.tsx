@@ -15,7 +15,8 @@ import {
   faLink,
   faImage,
   faCode,
-  faFileCode
+  faFileCode,
+  faDiagramProject
 } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
 
@@ -399,6 +400,24 @@ const Main = () => {
           dangerouslySetInnerHTML={{ __html: convertedText }}
         ></div>
       </div>
+
+      <hr />
+
+      <div className="d-flex flex-column align-items-center mt-5" id="what-is-it" lang={i18n.language}>
+        <h1 className="text-white">
+          {t("mainSection.whatIsIt")}
+        </h1>
+
+        <p className="w-75 text-center">
+          {t("mainSection.description")}
+        </p>
+
+        {/* <a href="https://github.com/hosseinyn/HMarkdownEditor">Github <FontAwesomeIcon icon={faDiagramProject} /></a> */}
+
+        <img src="https://skillicons.dev/icons?i=html,css,react,bootstrap,typescript" alt="Technologies" className="mt-3" />
+      </div>
+
+      <br />
     </>
   );
 };

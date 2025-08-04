@@ -1,4 +1,4 @@
-import { textareaValue } from "../pages/main";
+import { textareaValue } from "../pages/Main";
 import { useContext } from "react";
 
 const ToolbarButton = (props : any) => {
@@ -19,7 +19,7 @@ const ToolbarButton = (props : any) => {
             {props.function && (
                 <button className="btn btn-light" onClick={props.function}>{props.title}</button>
             )}
-            
+
         </>
     );
 }
