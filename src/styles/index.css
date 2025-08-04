@@ -1,0 +1,14 @@
+@font-face {
+  font-family: 'yekan';
+  src: url("../assets/persian_font/Yekan.woff") format("woff"),
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Mozilla+Headline:wght@200..700&display=swap');
+
+*{
+  font-family: "Mozilla Headline", sans-serif;
+}
+
+[lang="fa"] , [lang="fa"] *{
+  font-family: "yekan" !important;
+}

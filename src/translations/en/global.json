@@ -1,0 +1,10 @@
+{
+ "header": {
+  "chooseLanguage": "Select your language : ",
+  "github" : "github",
+  "whatIsIt" : "What is it"
+ },
+ "mainSection": {
+  "title": "H Markdown Editor"
+ }
+}

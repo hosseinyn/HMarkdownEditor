@@ -1,0 +1,15 @@
+nav{
+    min-width: 65%;
+    max-width: 68%;
+    border-bottom: 1px solid gray;
+}
+
+.language-btn{
+    margin-left: 7px;
+    width: 100px;
+    height: 37px;
+}
+
+.nav-link {
+    cursor: pointer;
+}
