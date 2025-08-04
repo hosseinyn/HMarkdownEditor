@@ -16,7 +16,8 @@ import {
   faImage,
   faCode,
   faFileCode,
-  faTrash
+  faTrash,
+  faDisplay
 } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
 
@@ -33,6 +34,7 @@ const Main = () => {
   const { t, i18n } = useTranslation("global");
   const [convertedText, setConvertedText] = useState<string>("");
   const [beforeConvertText, setBeforeConvertText] = useState<string>("");
+  const [isFullScreen , setIsFullScreen] = useState(false);
 
   const addLink = () => {
     Swal.fire({
@@ -175,6 +177,16 @@ const Main = () => {
   const handleClear = () => {
     setBeforeConvertText("")
     setConvertedText("")
+  }
+
+  const handleFullScreen = () => {
+    if (isFullScreen){
+      document.exitFullscreen()
+      setIsFullScreen(false)
+    } else {
+      document.documentElement.requestFullscreen()
+      setIsFullScreen(true)
+    }
   }
 
   const detectedMarkDownInLine = (text: string) => {
@@ -388,6 +400,7 @@ const Main = () => {
             <ToolbarButton markDown="``" title={<FontAwesomeIcon icon={faCode} />} />
             <ToolbarButton function={addMultiLineCode} title={<FontAwesomeIcon icon={faFileCode} />} />
             <ToolbarButton function={handleClear} title={<FontAwesomeIcon icon={faTrash} />} />
+            <ToolbarButton function={handleFullScreen} title={<FontAwesomeIcon icon={faDisplay} />} />
           </textareaValue.Provider>
         </div>
       </center>
