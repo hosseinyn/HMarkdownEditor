@@ -18,6 +18,17 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
+::-webkit-scrollbar{
+    background-color: white;
+    width: 6px;
+}
+
+
+::-webkit-scrollbar-thumb{
+    background-color: #0dc5fd;
+    border-radius: 6px;
+}
+
 a{
     text-decoration: none;
     color: #0c8fe6;
