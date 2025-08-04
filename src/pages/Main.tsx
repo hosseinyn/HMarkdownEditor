@@ -3,32 +3,198 @@ import Header from "../components/Header";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.js";
 import "../styles/homepage.css";
-import { useState , useEffect } from "react";
-// import Swal from "sweetalert2"
+import { useState, useEffect, createContext } from "react";
+import ToolbarButton from "../components/toolbarButton";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faBold,
+  faItalic,
+  faStrikethrough,
+  faQuoteLeft,
+  faList,
+  faLink,
+  faImage,
+  faCode,
+  faFileCode
+} from "@fortawesome/free-solid-svg-icons";
+import Swal from "sweetalert2";
+
+type textareaValueContext = {
+  beforeConvertText: string;
+  setBeforeConvertText: (val: string) => void;
+};
+
+const textareaValue = createContext<textareaValueContext | undefined>(
+  undefined
+);
 
 const Main = () => {
   const { t, i18n } = useTranslation("global");
-  const [convertedText, setConvertedText] = useState("");
+  const [convertedText, setConvertedText] = useState<string>("");
+  const [beforeConvertText, setBeforeConvertText] = useState<string>("");
 
-  const detectedMarkDownInLine = (text:string) => {
-  return text
-    .replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" />')
-    .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>')
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/^#{6} (.*)$/gm, '<h6>$1</h6>')
-    .replace(/^#{5} (.*)$/gm, '<h5>$1</h5>')
-    .replace(/^#{4} (.*)$/gm, '<h4>$1</h4>')
-    .replace(/^#{3} (.*)$/gm, '<h3>$1</h3>')
-    .replace(/^#{2} (.*)$/gm, '<h2>$1</h2>')
-    .replace(/^#{1} (.*)$/gm, '<h1>$1</h1>')
-}
+  const addLink = () => {
+    Swal.fire({
+      title: "Add Link",
+      html: `
+    <label for="url"> URL : </label>
+    <input type="url" id="url" class="swal2-input" placeholder="Link URL">
+    <label for="title"> Title : </label>
+    <input type="text" id="title" class="swal2-input" placeholder="Link title">
+  `,
+      confirmButtonText: "Add the link",
+      focusConfirm: false,
+      background: "linear-gradient(90deg, #efd5ff 0%, #515ada 100%)",
+      preConfirm: () => {
+        let urlValue: any = document.getElementById(
+          "url"
+        ) as HTMLInputElement | null;
+        let titleValue: any = document.getElementById(
+          "title"
+        ) as HTMLInputElement | null;
+        if (urlValue !== null) {
+          urlValue = urlValue.value;
+        }
+        if (titleValue !== null) {
+          titleValue = titleValue.value;
+        }
 
+        if (!urlValue || !titleValue) {
+          Swal.showValidationMessage(`Fields are required`);
+        } else {
+          setBeforeConvertText(
+            beforeConvertText + `[${titleValue}](${urlValue})`
+          );
+          setConvertedText(
+            convertedText + `<a href="${urlValue}">${titleValue}</a>`
+          );
+        }
+      },
+    });
+  };
+
+  const addImage = () => {
+    Swal.fire({
+      title: "Add Image",
+      html: `
+    <label for="url"> URL : </label>
+    <input type="url" id="url" class="swal2-input" placeholder="Image URL">
+    <label for="link"> Link : </label>
+    <input type="url" id="link" class="swal2-input" placeholder="Link URL">
+    <label for="title"> Title : </label>
+    <input type="text" id="title" class="swal2-input" placeholder="Image title">
+  `,
+      confirmButtonText: "Add the image",
+      focusConfirm: false,
+      background: "linear-gradient(90deg, #efd5ff 0%, #515ada 100%)",
+      preConfirm: () => {
+        let urlValue: any = document.getElementById(
+          "url"
+        ) as HTMLInputElement | null;
+        let linkValue: any = document.getElementById(
+          "link"
+        ) as HTMLInputElement | null;
+        let titleValue: any = document.getElementById(
+          "title"
+        ) as HTMLInputElement | null;
+        if (urlValue !== null) {
+          urlValue = urlValue.value;
+        }
+        if (linkValue !== null) {
+          linkValue = linkValue.value;
+        }
+        if (titleValue !== null) {
+          titleValue = titleValue.value;
+        }
+
+        if (!urlValue || !titleValue) {
+          Swal.showValidationMessage(`URL and title are required`);
+        } else {
+          if (linkValue != "") {
+            console.log("link wraped");
+            setBeforeConvertText(
+              beforeConvertText +
+                `[!${titleValue}](${urlValue} ${titleValue})(${linkValue})`
+            );
+            setConvertedText(
+              convertedText +
+                `<a href="${linkValue}"> <img alt="${titleValue}" src="${urlValue}" /> </a>`
+            );
+          } else {
+            setBeforeConvertText(
+              beforeConvertText + `[!${titleValue}](${urlValue} ${titleValue})`
+            );
+            setConvertedText(
+              convertedText + `<img alt="${titleValue}" src="${urlValue}" />`
+            );
+          }
+        }
+      },
+    });
+  };
+
+  let codeLine = 0;
+
+  const addMultiLineCode = () => {
+    Swal.fire({
+      title: "Add Multi Line Code",
+      html: `
+    <label for="language"> Programming Language : </label>
+    <input type="text" id="language" class="swal2-input" placeholder="Language Name">
+    <textarea id="code"></textarea>
+  `,
+      confirmButtonText: "Add the code",
+      focusConfirm: false,
+      background: "linear-gradient(90deg, #efd5ff 0%, #515ada 100%)",
+      preConfirm: () => {
+        let languageValue: any = document.getElementById(
+          "language"
+        ) as HTMLInputElement | null;
+        let codeValue: any = document.getElementById(
+          "code"
+        ) as HTMLTextAreaElement | null;
+
+        if (codeValue !== null) {
+          codeValue = codeValue.value;
+        }
+        if (languageValue !== null) {
+          languageValue = languageValue.value;
+        }
+
+        if (!languageValue || !codeValue) {
+          Swal.showValidationMessage(`Fields are required`);
+        } else {
+          setBeforeConvertText(beforeConvertText + "```" + languageValue + `\n ${codeValue}` + "\n ```")
+          setConvertedText(convertedText + `${`<pre class="code-box"><code><span style="border-right : 1px solid gray; padding-right: 5px;">${codeLine}- </span> <span style="margin-left: 3px;">${codeValue}</span>`}\n</code></pre>`)
+        }
+      },
+    });
+  };
+
+  const detectedMarkDownInLine = (text: string) => {
+    return text
+      .replace(/^#{6} (.*)$/gm, "<h6>$1</h6>")
+      .replace(/^#{5} (.*)$/gm, "<h5>$1</h5>")
+      .replace(/^#{4} (.*)$/gm, "<h4>$1</h4>")
+      .replace(/^#{3} (.*)$/gm, "<h3>$1</h3>")
+      .replace(/^#{2} (.*)$/gm, "<h2>$1</h2>")
+      .replace(/^#{1} (.*)$/gm, "<h1>$1</h1>")
+      .replace(
+        /^> (.*)$/gm,
+        `<p style="border-left: 3px solid gray; padding-left: 10px;">$1</p>`
+      )
+      .replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" />')
+      .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>')
+      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\*(.*?)\*/g, "<em>$1</em>")
+      .replace(/~~(.*?)~~/g, "<del>$1</del>")
+      .replace(/^-\s+(.*)$/gm, '<li class="mb-0 ms-0">$1</li>');
+  };
 
   const handleChange = (e: any) => {
     const changedText = e.target.value;
-    let codeBlock = false
-    let codeLine = 0
+    setBeforeConvertText(e.target.value);
+    let codeBlock = false;
 
     const converted = changedText
       .split("\n")
@@ -41,7 +207,7 @@ const Main = () => {
             return `<pre class="code-box"><code>`;
           }
         } else if (codeBlock) {
-          codeLine++
+          codeLine++;
           return `${`<span style="border-right : 1px solid gray; padding-right: 5px;">${codeLine}- </span> <span style="margin-left: 3px;">${line}</span>`}\n`;
         }
 
@@ -65,53 +231,75 @@ const Main = () => {
             return `<h6>${detectedMarkDownInLine(line.slice(7))}</h6>`;
 
           case line.startsWith("**") && line.endsWith("**"):
-            return `<b>${detectedMarkDownInLine(line.slice(2).replace("**", ""))}</b>`;
+            return `<b>${detectedMarkDownInLine(
+              line.slice(2).replace("**", "")
+            )}</b>`;
 
           case line.startsWith("~~") && line.endsWith("~~"):
-            return `<p style="text-decoration:line-through">${detectedMarkDownInLine(line
-              .slice(2)
-              .replace("~~", ""))}</p>`;
+            return `<p style="text-decoration:line-through">${detectedMarkDownInLine(
+              line.slice(2).replace("~~", "")
+            )}</p>`;
 
           case line.startsWith("> "):
-            return `<p style="border-left: 3px solid gray; padding-left: 10px;">${detectedMarkDownInLine(line.slice(
-              2
-            ))}</p>`;
+            return `<p style="border-left: 3px solid gray; padding-left: 10px;">${detectedMarkDownInLine(
+              line.slice(2)
+            )}</p>`;
 
           case line.startsWith("- "):
-            return `<ul class="mb-0"><li>${detectedMarkDownInLine(line.slice(2))}</li></ul>`;
+            return `<ul class="mb-0"><li>${detectedMarkDownInLine(
+              line.slice(2)
+            )}</li></ul>`;
 
           case line.startsWith("*") && line.endsWith("*"):
-            return `<p style="font-style: italic">${detectedMarkDownInLine(line
-              .slice(1)
-              .replace("*", ""))}</p>`;
+            return `<p style="font-style: italic">${detectedMarkDownInLine(
+              line.slice(1).replace("*", "")
+            )}</p>`;
 
           case line.includes("------------"):
             return `<hr />`;
 
-          case line.split("]")[0].startsWith("[!") &&
-            line.split("]")[1].startsWith("("):
-            const altText = line.split("]")[0].replace("[![", "");
-            const srcURL = line.split("]")[1].slice(1).replace(")", "");
+          case line.startsWith("[!") &&
+            line.split("]").length > 1 &&
+            line.split("]")[1].startsWith("("): {
+            const parts = line.split("]");
+            const afterBracket = parts[1];
+            if (!afterBracket) return line;
 
-            if (line.split("]")[2]) {
-              const linkURL = line.split("]")[2].slice(1).replace(")", "");
-              if (line.split("]")[1].split(" ")) {
-                const titleText = line.split("]")[1].split(")")[0].split(" ")[1]
-                return `<a href="${linkURL}"> <img alt="${altText}" src="${srcURL}" title="${titleText}" /> </a>`;
+            const altText = parts[0].replace("[!", "");
+
+            const afterBracketParts = afterBracket.split(" ");
+
+            const firstPart = afterBracketParts[0];
+            if (!firstPart) return line;
+
+            const srcURL = firstPart.replace("(", "");
+
+            let titleText = "";
+            if (afterBracketParts.length > 1) {
+              const possibleTitle = afterBracketParts[1];
+              if (possibleTitle) {
+                titleText = possibleTitle.split(")")[0];
               }
-              return `<a href="${linkURL}"> <img alt="${altText}" src="${srcURL}" /> </a>`;
             }
 
-            if (line.split("]")[1].split(" ")) {
-              const titleText = line
-                .split("]")[1]
-                .split(" ")[1]
-                .replace(")", "");
+            const afterClosingParen = afterBracket.split(")")[1];
+            if (afterClosingParen && afterClosingParen.trim() !== "") {
+              const linkParts = afterClosingParen.trim().split("(");
+              if (linkParts.length > 1) {
+                const linkURL = linkParts[1].replace(")", "");
+                if (titleText) {
+                  return `<a href="${linkURL}"> <img alt="${altText}" src="${srcURL}" title="${titleText}" /> </a>`;
+                }
+                return `<a href="${linkURL}"> <img alt="${altText}" src="${srcURL}" /> </a>`;
+              }
+            }
+
+            if (titleText) {
               return `<img alt="${altText}" src="${srcURL}" title="${titleText}" />`;
             }
-
             return `<img alt="${altText}" src="${srcURL}" />`;
-            
+          }
+
           case line.startsWith("`") && line.endsWith("`"):
             return `<span class="code-box">${line
               .slice(1)
@@ -124,6 +312,9 @@ const Main = () => {
             return `<a href="${hrefValue}">${textValue}</a>`;
 
           default:
+            if (line == "") {
+              return "";
+            }
             return `<p>${detectedMarkDownInLine(line)}</p>`;
         }
       })
@@ -134,7 +325,8 @@ const Main = () => {
 
   useEffect(() => {
     setConvertedText("<h1>Hello Markdown!</h1>");
-  } , [])
+    setBeforeConvertText("# Hello Markdown!");
+  }, []);
 
   return (
     <>
@@ -147,14 +339,60 @@ const Main = () => {
         {t("mainSection.title")}
       </h1>
 
+      <center>
+        <div className="d-flex gap-1 toolbar justify-content-center align-items-center">
+          <textareaValue.Provider
+            value={{ beforeConvertText, setBeforeConvertText }}
+          >
+            <ToolbarButton markDown="#" title="h1" />
+            <ToolbarButton markDown="##" title="h2" />
+            <ToolbarButton markDown="###" title="h3" />
+            <ToolbarButton markDown="####" title="h4" />
+            <ToolbarButton markDown="#####" title="h5" />
+            <ToolbarButton markDown="######" title="h6" />
+            <ToolbarButton
+              markDown="** **"
+              title={<FontAwesomeIcon icon={faBold} />}
+            />
+            <ToolbarButton
+              markDown="* *"
+              title={<FontAwesomeIcon icon={faItalic} />}
+            />
+            <ToolbarButton
+              markDown="~~ ~~"
+              title={<FontAwesomeIcon icon={faStrikethrough} />}
+            />
+            <ToolbarButton
+              markDown="> "
+              title={<FontAwesomeIcon icon={faQuoteLeft} />}
+            />
+            <ToolbarButton markDown="------------" title="-" />
+            <ToolbarButton
+              markDown="- "
+              title={<FontAwesomeIcon icon={faList} />}
+            />
+            <ToolbarButton
+              function={addLink}
+              title={<FontAwesomeIcon icon={faLink} />}
+            />
+            <ToolbarButton
+              function={addImage}
+              title={<FontAwesomeIcon icon={faImage} />}
+            />
+            <ToolbarButton markDown="``" title={<FontAwesomeIcon icon={faCode} />} />
+            <ToolbarButton function={addMultiLineCode} title={<FontAwesomeIcon icon={faFileCode} />} />
+          </textareaValue.Provider>
+        </div>
+      </center>
+
       <div
         className="d-flex gap-1 justify-content-center mt-5 flex-wrap flex-sm-nowrap"
         lang={i18n.language}
       >
         <textarea
           className="text-box d-flex flex-column"
+          value={beforeConvertText}
           onChange={handleChange}
-          defaultValue="# Hello Markdown!"
         ></textarea>
         <div
           className="text-box d-flex flex-column"
@@ -165,4 +403,5 @@ const Main = () => {
   );
 };
 
+export { textareaValue };
 export default Main;
