@@ -16,7 +16,7 @@ import {
   faImage,
   faCode,
   faFileCode,
-  faDiagramProject
+  faTrash
 } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
 
@@ -171,6 +171,11 @@ const Main = () => {
       },
     });
   };
+
+  const handleClear = () => {
+    setBeforeConvertText("")
+    setConvertedText("")
+  }
 
   const detectedMarkDownInLine = (text: string) => {
     return text
@@ -382,6 +387,7 @@ const Main = () => {
             />
             <ToolbarButton markDown="``" title={<FontAwesomeIcon icon={faCode} />} />
             <ToolbarButton function={addMultiLineCode} title={<FontAwesomeIcon icon={faFileCode} />} />
+            <ToolbarButton function={handleClear} title={<FontAwesomeIcon icon={faTrash} />} />
           </textareaValue.Provider>
         </div>
       </center>
