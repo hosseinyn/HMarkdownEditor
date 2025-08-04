@@ -10,6 +10,21 @@ const Main = () => {
   const { t, i18n } = useTranslation("global");
   const [convertedText, setConvertedText] = useState("");
 
+  const detectedMarkDownInLine = (text:string) => {
+  return text
+    .replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" />')
+    .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/^#{6} (.*)$/gm, '<h6>$1</h6>')
+    .replace(/^#{5} (.*)$/gm, '<h5>$1</h5>')
+    .replace(/^#{4} (.*)$/gm, '<h4>$1</h4>')
+    .replace(/^#{3} (.*)$/gm, '<h3>$1</h3>')
+    .replace(/^#{2} (.*)$/gm, '<h2>$1</h2>')
+    .replace(/^#{1} (.*)$/gm, '<h1>$1</h1>')
+}
+
+
   const handleChange = (e: any) => {
     const changedText = e.target.value;
     let codeBlock = false
@@ -32,43 +47,43 @@ const Main = () => {
 
         switch (true) {
           case line.startsWith("# "):
-            return `<h1>${line.slice(2)}</h1>`;
+            return `<h1>${detectedMarkDownInLine(line.slice(2))}</h1>`;
 
           case line.startsWith("## "):
-            return `<h2>${line.slice(3)}</h2>`;
+            return `<h2>${detectedMarkDownInLine(line.slice(3))}</h2>`;
 
           case line.startsWith("### "):
-            return `<h3>${line.slice(4)}</h3>`;
+            return `<h3>${detectedMarkDownInLine(line.slice(4))}</h3>`;
 
           case line.startsWith("#### "):
-            return `<h4>${line.slice(5)}</h4>`;
+            return `<h4>${detectedMarkDownInLine(line.slice(5))}</h4>`;
 
           case line.startsWith("##### "):
-            return `<h5>${line.slice(6)}</h5>`;
+            return `<h5>${detectedMarkDownInLine(line.slice(6))}</h5>`;
 
           case line.startsWith("###### "):
-            return `<h6>${line.slice(7)}</h6>`;
+            return `<h6>${detectedMarkDownInLine(line.slice(7))}</h6>`;
 
           case line.startsWith("**") && line.endsWith("**"):
-            return `<b>${line.slice(2).replace("**", "")}</b>`;
+            return `<b>${detectedMarkDownInLine(line.slice(2).replace("**", ""))}</b>`;
 
           case line.startsWith("~~") && line.endsWith("~~"):
-            return `<p style="text-decoration:line-through">${line
+            return `<p style="text-decoration:line-through">${detectedMarkDownInLine(line
               .slice(2)
-              .replace("~~", "")}</p>`;
+              .replace("~~", ""))}</p>`;
 
           case line.startsWith("> "):
-            return `<p style="border-left: 3px solid gray; padding-left: 10px;">${line.slice(
+            return `<p style="border-left: 3px solid gray; padding-left: 10px;">${detectedMarkDownInLine(line.slice(
               2
-            )}</p>`;
+            ))}</p>`;
 
           case line.startsWith("- "):
-            return `<ul class="mb-0"><li>${line.slice(2)}</li></ul>`;
+            return `<ul class="mb-0"><li>${detectedMarkDownInLine(line.slice(2))}</li></ul>`;
 
           case line.startsWith("*") && line.endsWith("*"):
-            return `<p style="font-style: italic">${line
+            return `<p style="font-style: italic">${detectedMarkDownInLine(line
               .slice(1)
-              .replace("*", "")}</p>`;
+              .replace("*", ""))}</p>`;
 
           case line.includes("------------"):
             return `<hr />`;
@@ -81,11 +96,7 @@ const Main = () => {
             if (line.split("]")[2]) {
               const linkURL = line.split("]")[2].slice(1).replace(")", "");
               if (line.split("]")[1].split(" ")) {
-                const titleText = line
-                  .split("]")[1]
-                  .split(" ")[1]
-                  .replace(")", "")
-                  .replace('"', "");
+                const titleText = line.split("]")[1].split(")")[0].split(" ")[1]
                 return `<a href="${linkURL}"> <img alt="${altText}" src="${srcURL}" title="${titleText}" /> </a>`;
               }
               return `<a href="${linkURL}"> <img alt="${altText}" src="${srcURL}" /> </a>`;
@@ -100,13 +111,7 @@ const Main = () => {
             }
 
             return `<img alt="${altText}" src="${srcURL}" />`;
-
-          // case line.startsWith("```"): {
-          //   const output = codeBlock ? `</code>` : `<code class="code-box">`;
-          //   setCodeBlock(!codeBlock);
-          //   return output;
-          // }
-
+            
           case line.startsWith("`") && line.endsWith("`"):
             return `<span class="code-box">${line
               .slice(1)
@@ -119,7 +124,7 @@ const Main = () => {
             return `<a href="${hrefValue}">${textValue}</a>`;
 
           default:
-            return `<p>${line}</p>`;
+            return `<p>${detectedMarkDownInLine(line)}</p>`;
         }
       })
       .join("");
