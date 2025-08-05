@@ -60,19 +60,16 @@ img {
     -webkit-backdrop-filter: blur(6.6px);
     border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 5px;
-    height: 40px;
-    width: 1120px;
+    min-height: 40px;
+    width: 88%;
     position: relative;
     top: 43px;
+    padding: 5px;
 }
 
 .toolbar button{
     height: 34px;
     width: 40px;
-}
-
-p {
-    margin-bottom: 0;
 }
 
 #code{

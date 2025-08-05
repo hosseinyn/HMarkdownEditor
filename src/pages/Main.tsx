@@ -4,7 +4,7 @@ import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.js";
 import "../styles/homepage.css";
 import { useState, useEffect, createContext } from "react";
-import ToolbarButton from "../components/toolbarButton";
+import ToolbarButton from "../components/ToolbarButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBold,
@@ -17,7 +17,7 @@ import {
   faCode,
   faFileCode,
   faTrash,
-  faDisplay
+  faDisplay,
 } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
 
@@ -34,7 +34,7 @@ const Main = () => {
   const { t, i18n } = useTranslation("global");
   const [convertedText, setConvertedText] = useState<string>("");
   const [beforeConvertText, setBeforeConvertText] = useState<string>("");
-  const [isFullScreen , setIsFullScreen] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(false);
 
   const addLink = () => {
     Swal.fire({
@@ -167,27 +167,36 @@ const Main = () => {
         if (!languageValue || !codeValue) {
           Swal.showValidationMessage(`Fields are required`);
         } else {
-          setBeforeConvertText(beforeConvertText + "```" + languageValue + `\n ${codeValue}` + "\n ```")
-          setConvertedText(convertedText + `${`<pre class="code-box"><code><span style="border-right : 1px solid gray; padding-right: 5px;">${codeLine}- </span> <span style="margin-left: 3px;">${codeValue}</span>`}\n</code></pre>`)
+          setBeforeConvertText(
+            beforeConvertText +
+              "```" +
+              languageValue +
+              `\n ${codeValue}` +
+              "\n ```"
+          );
+          setConvertedText(
+            convertedText +
+              `${`<pre class="code-box"><code><span style="border-right : 1px solid gray; padding-right: 5px;">${codeLine}- </span> <span style="margin-left: 3px;">${codeValue}</span>`}\n</code></pre>`
+          );
         }
       },
     });
   };
 
   const handleClear = () => {
-    setBeforeConvertText("")
-    setConvertedText("")
-  }
+    setBeforeConvertText("");
+    setConvertedText("");
+  };
 
   const handleFullScreen = () => {
-    if (isFullScreen){
-      document.exitFullscreen()
-      setIsFullScreen(false)
+    if (isFullScreen) {
+      document.exitFullscreen();
+      setIsFullScreen(false);
     } else {
-      document.documentElement.requestFullscreen()
-      setIsFullScreen(true)
+      document.documentElement.requestFullscreen();
+      setIsFullScreen(true);
     }
-  }
+  };
 
   const detectedMarkDownInLine = (text: string) => {
     return text
@@ -276,46 +285,23 @@ const Main = () => {
           case line.includes("------------"):
             return `<hr />`;
 
-          case line.startsWith("[!") &&
-            line.split("]").length > 1 &&
-            line.split("]")[1].startsWith("("): {
-            const parts = line.split("]");
-            const afterBracket = parts[1];
-            if (!afterBracket) return line;
+          case line.startsWith("[!") && line.includes("]("): {
+            const imgLinkRegex =
+              /^\[!(.*?)\]\((.*?)(?:\s+"(.*?)")?\)(?:\s*\((.*?)\))?/;
 
-            const altText = parts[0].replace("[!", "");
+            const match = line.match(imgLinkRegex);
+            if (!match) return line;
 
-            const afterBracketParts = afterBracket.split(" ");
+            const altText = match[1] || "";
+            const srcURL = line.split("]")[1].split(")")[0].split(" ")[0].replace("(" , "" );
+            const titleText = line.split("]")[1].split(")")[0].split(" ")[1]
+            const linkURL = line.split("]")[1].split(")")[1].replace("(" , "")
 
-            const firstPart = afterBracketParts[0];
-            if (!firstPart) return line;
+            const imgTag = `<img alt="${altText}" src="${srcURL}"${
+              titleText ? ` title="${titleText}"` : ""
+            } />`;
 
-            const srcURL = firstPart.replace("(", "");
-
-            let titleText = "";
-            if (afterBracketParts.length > 1) {
-              const possibleTitle = afterBracketParts[1];
-              if (possibleTitle) {
-                titleText = possibleTitle.split(")")[0];
-              }
-            }
-
-            const afterClosingParen = afterBracket.split(")")[1];
-            if (afterClosingParen && afterClosingParen.trim() !== "") {
-              const linkParts = afterClosingParen.trim().split("(");
-              if (linkParts.length > 1) {
-                const linkURL = linkParts[1].replace(")", "");
-                if (titleText) {
-                  return `<a href="${linkURL}"> <img alt="${altText}" src="${srcURL}" title="${titleText}" /> </a>`;
-                }
-                return `<a href="${linkURL}"> <img alt="${altText}" src="${srcURL}" /> </a>`;
-              }
-            }
-
-            if (titleText) {
-              return `<img alt="${altText}" src="${srcURL}" title="${titleText}" />`;
-            }
-            return `<img alt="${altText}" src="${srcURL}" />`;
+            return linkURL ? `<a href="${linkURL}">${imgTag}</a>` : imgTag;
           }
 
           case line.startsWith("`") && line.endsWith("`"):
@@ -330,9 +316,6 @@ const Main = () => {
             return `<a href="${hrefValue}">${textValue}</a>`;
 
           default:
-            if (line == "") {
-              return "";
-            }
             return `<p>${detectedMarkDownInLine(line)}</p>`;
         }
       })
@@ -358,7 +341,7 @@ const Main = () => {
       </h1>
 
       <center>
-        <div className="d-flex gap-1 toolbar justify-content-center align-items-center">
+        <div className="d-flex gap-1 toolbar justify-content-center align-items-center flex-wrap flex-sm-nowrap">
           <textareaValue.Provider
             value={{ beforeConvertText, setBeforeConvertText }}
           >
@@ -397,10 +380,22 @@ const Main = () => {
               function={addImage}
               title={<FontAwesomeIcon icon={faImage} />}
             />
-            <ToolbarButton markDown="``" title={<FontAwesomeIcon icon={faCode} />} />
-            <ToolbarButton function={addMultiLineCode} title={<FontAwesomeIcon icon={faFileCode} />} />
-            <ToolbarButton function={handleClear} title={<FontAwesomeIcon icon={faTrash} />} />
-            <ToolbarButton function={handleFullScreen} title={<FontAwesomeIcon icon={faDisplay} />} />
+            <ToolbarButton
+              markDown="``"
+              title={<FontAwesomeIcon icon={faCode} />}
+            />
+            <ToolbarButton
+              function={addMultiLineCode}
+              title={<FontAwesomeIcon icon={faFileCode} />}
+            />
+            <ToolbarButton
+              function={handleClear}
+              title={<FontAwesomeIcon icon={faTrash} />}
+            />
+            <ToolbarButton
+              function={handleFullScreen}
+              title={<FontAwesomeIcon icon={faDisplay} />}
+            />
           </textareaValue.Provider>
         </div>
       </center>
@@ -422,18 +417,22 @@ const Main = () => {
 
       <hr />
 
-      <div className="d-flex flex-column align-items-center mt-5" id="what-is-it" lang={i18n.language}>
-        <h1 className="text-white">
-          {t("mainSection.whatIsIt")}
-        </h1>
+      <div
+        className="d-flex flex-column align-items-center mt-5"
+        id="what-is-it"
+        lang={i18n.language}
+      >
+        <h1 className="text-white">{t("mainSection.whatIsIt")}</h1>
 
-        <p className="w-75 text-center">
-          {t("mainSection.description")}
-        </p>
+        <p className="w-75 text-center">{t("mainSection.description")}</p>
 
         {/* <a href="https://github.com/hosseinyn/HMarkdownEditor">Github <FontAwesomeIcon icon={faDiagramProject} /></a> */}
 
-        <img src="https://skillicons.dev/icons?i=html,css,react,bootstrap,typescript" alt="Technologies" className="mt-3" />
+        <img
+          src="https://skillicons.dev/icons?i=html,css,react,bootstrap,typescript"
+          alt="Technologies"
+          className="mt-3"
+        />
       </div>
 
       <br />
