@@ -86,6 +86,8 @@ const Main = () => {
     <input type="url" id="link" class="swal2-input" placeholder="Link URL">
     <label for="title"> Title : </label>
     <input type="text" id="title" class="swal2-input" placeholder="Image title">
+    <label for="altValue">  Alt-txt : </label>
+    <input type="text" id="altValue" class="swal2-input" placeholder="Image alt">
   `,
       confirmButtonText: "Add the image",
       focusConfirm: false,
@@ -100,6 +102,9 @@ const Main = () => {
         let titleValue: any = document.getElementById(
           "title"
         ) as HTMLInputElement | null;
+        let altValue: any = document.getElementById(
+          "altValue"
+        ) as HTMLInputElement | null;
         if (urlValue !== null) {
           urlValue = urlValue.value;
         }
@@ -110,25 +115,29 @@ const Main = () => {
           titleValue = titleValue.value;
         }
 
-        if (!urlValue || !titleValue) {
-          Swal.showValidationMessage(`URL and title are required`);
+        if (altValue !== null) {
+          altValue = altValue.value;
+        }
+
+        if (!urlValue || !altValue) {
+          Swal.showValidationMessage(`URL and alt are required`);
         } else {
           if (linkValue != "") {
-            console.log("link wraped");
             setBeforeConvertText(
               beforeConvertText +
-                `[!${titleValue}](${urlValue} ${titleValue})(${linkValue})`
+                `[!${altValue}](${urlValue} ${titleValue})(${linkValue})`
             );
             setConvertedText(
               convertedText +
-                `<a href="${linkValue}"> <img alt="${titleValue}" src="${urlValue}" /> </a>`
+                `<a href="${linkValue}"> <img alt="${altValue}" src="${urlValue}" title="${titleValue}" /> </a>`
             );
           } else {
             setBeforeConvertText(
-              beforeConvertText + `[!${titleValue}](${urlValue} ${titleValue})`
+              beforeConvertText + `[!${altValue}](${urlValue} ${titleValue})`
             );
             setConvertedText(
-              convertedText + `<img alt="${titleValue}" src="${urlValue}" />`
+              convertedText +
+                `<img alt="${altValue}" src="${urlValue}" title="${titleValue}" />`
             );
           }
         }
@@ -286,16 +295,15 @@ const Main = () => {
             return `<hr />`;
 
           case line.startsWith("[!") && line.includes("]("): {
-            const imgLinkRegex =
-              /^\[!(.*?)\]\((.*?)(?:\s+"(.*?)")?\)(?:\s*\((.*?)\))?/;
-
-            const match = line.match(imgLinkRegex);
+            const match = line.match(
+              /^\[!(.*?)\]\((.*?)(?:\s+"(.*?)")?\)(?:\s*\((.*?)\))?$/
+            );
             if (!match) return line;
 
-            const altText = match[1] || "";
-            const srcURL = line.split("]")[1].split(")")[0].split(" ")[0].replace("(" , "" );
-            const titleText = line.split("]")[1].split(")")[0].split(" ")[1]
-            const linkURL = line.split("]")[1].split(")")[1].replace("(" , "")
+            const altText = match[1]?.trim() || "";
+            const srcURL = match[2]?.trim() || "";
+            const titleText = match[3]?.trim() || "";
+            const linkURL = match[4]?.trim() || "";
 
             const imgTag = `<img alt="${altText}" src="${srcURL}"${
               titleText ? ` title="${titleText}"` : ""
