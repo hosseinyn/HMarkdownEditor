@@ -18,6 +18,7 @@ import {
   faFileCode,
   faTrash,
   faDisplay,
+  faCopy,
 } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
 
@@ -206,6 +207,16 @@ const Main = () => {
       setIsFullScreen(true);
     }
   };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(beforeConvertText);
+    Swal.fire({
+      icon: "success",
+      title: "Copied to clipboard",
+      showConfirmButton: false,
+      timer : 1900
+    })
+  }
 
   const detectedMarkDownInLine = (text: string) => {
     return text
@@ -403,6 +414,10 @@ const Main = () => {
             <ToolbarButton
               function={handleFullScreen}
               title={<FontAwesomeIcon icon={faDisplay} />}
+            />
+            <ToolbarButton
+              function={handleCopy}
+              title={<FontAwesomeIcon icon={faCopy} />}
             />
           </textareaValue.Provider>
         </div>
