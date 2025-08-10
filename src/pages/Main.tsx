@@ -123,22 +123,31 @@ const Main = () => {
         if (!urlValue || !altValue) {
           Swal.showValidationMessage(`URL and alt are required`);
         } else {
-          if (linkValue != "") {
+          if (linkValue) {
             setBeforeConvertText(
               beforeConvertText +
-                `[!${altValue}](${urlValue} ${titleValue})(${linkValue})`
+                `[![${altValue}](${urlValue}${
+                  titleValue ? ` "${titleValue}"` : ""
+                })](${linkValue})`
             );
             setConvertedText(
               convertedText +
-                `<a href="${linkValue}"> <img alt="${altValue}" src="${urlValue}" title="${titleValue}" /> </a>`
+                `<a href="${linkValue}"><img alt="${altValue}" src="${urlValue}"${
+                  titleValue ? ` title="${titleValue}"` : ""
+                } /></a>`
             );
           } else {
             setBeforeConvertText(
-              beforeConvertText + `[!${altValue}](${urlValue} ${titleValue})`
+              beforeConvertText +
+                `[!${altValue}](${urlValue}${
+                  titleValue ? ` "${titleValue}"` : ""
+                })`
             );
             setConvertedText(
               convertedText +
-                `<img alt="${altValue}" src="${urlValue}" title="${titleValue}" />`
+                `<img alt="${altValue}" src="${urlValue}"${
+                  titleValue ? ` title="${titleValue}"` : ""
+                } />`
             );
           }
         }
@@ -214,9 +223,9 @@ const Main = () => {
       icon: "success",
       title: "Copied to clipboard",
       showConfirmButton: false,
-      timer : 1900
-    })
-  }
+      timer: 1900,
+    });
+  };
 
   const detectedMarkDownInLine = (text: string) => {
     return text
@@ -307,20 +316,36 @@ const Main = () => {
 
           case line.startsWith("[!") && line.includes("]("): {
             const match = line.match(
-              /^\[!(.*?)\]\((.*?)(?:\s+"(.*?)")?\)(?:\s*\((.*?)\))?$/
+              /^\[!\[(.*?)\]\(([^)]+?)(?:\s+"(.*?)")?\)\]\(([^)]+)\)$/
             );
-            if (!match) return line;
 
-            const altText = match[1]?.trim() || "";
-            const srcURL = match[2]?.trim() || "";
-            const titleText = match[3]?.trim() || "";
-            const linkURL = match[4]?.trim() || "";
+            if (match) {
+              const altText = match[1]?.trim() || "";
+              const srcURL = match[2]?.trim() || "";
+              const titleText = match[3]?.trim() || "";
+              const linkURL = match[4]?.trim() || "";
 
-            const imgTag = `<img alt="${altText}" src="${srcURL}"${
-              titleText ? ` title="${titleText}"` : ""
-            } />`;
+              const imgTag = `<img alt="${altText}" src="${srcURL}"${
+                titleText ? ` title="${titleText}"` : ""
+              } />`;
 
-            return linkURL ? `<a href="${linkURL}">${imgTag}</a>` : imgTag;
+              return `<a href="${linkURL}">${imgTag}</a>`;
+            }
+            const matchSimple = line.match(
+              /^\[!(.*?)\]\(([^)]+?)(?:\s+"(.*?)")?\)$/
+            );
+
+            if (matchSimple) {
+              const altText = matchSimple[1]?.trim() || "";
+              const srcURL = matchSimple[2]?.trim() || "";
+              const titleText = matchSimple[3]?.trim() || "";
+
+              return `<img alt="${altText}" src="${srcURL}"${
+                titleText ? ` title="${titleText}"` : ""
+              } />`;
+            }
+
+            return line;
           }
 
           case line.startsWith("`") && line.endsWith("`"):
